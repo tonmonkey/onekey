@@ -7,7 +7,7 @@ def dealDate(companyName_set,companyPid_set):
     file_name = current_datetime + "_file.xlsx"
     workbook = openpyxl.Workbook()
     sheet1 = workbook.active
-    sheet1['A1'] = "控股公司"
+    sheet1['A1'] = "控股/投资公司"
     sheet1['B1'] = "PID"
     nameColumn = 1
     pidColumn = 2
@@ -15,5 +15,6 @@ def dealDate(companyName_set,companyPid_set):
         sheet1.cell(row=row_index,column=nameColumn).value = value1
     for row_index,value2 in enumerate(companyPid_set,start=2):
         sheet1.cell(row=row_index,column=pidColumn).value = value2
-
+    print("\033[0;34m【+】\033[0m" + "数据以去重,正在保存输出结果")
+    time.sleep(1)
     workbook.save(file_name)

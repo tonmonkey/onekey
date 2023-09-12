@@ -1,13 +1,24 @@
 # in-deepth query
-from main import *
 import time
+import requests
+from config import *
+import json
 
 class indeepQuery:
     def __init__(self):
-        self.all_indeep_pid_set = set()
         self.indeep_pid_set = set()
+        self.store_List = []
+
+    def dealSet(self,store_set):
+        self.store_List.append(store_set)
+
+    def outDeal_Pid(self):
+        # for i in self.store_List:
+        #     print(i)
+        return self.store_List
 
     def deepthQuery(self,companyPid_set):
+        store_set = set()
         try:
             for element in companyPid_set.copy():
                 self.indeep_pid_set.clear()
@@ -36,21 +47,28 @@ class indeepQuery:
                                 companypid = judgeData_json['data']['list'][n]["pid"]
                                 print("\033[1;32m【+】\033[0m" + "控股公司PID为:{}".format(companypid))
                                 self.indeep_pid_set.add(companypid)
-                                self.all_indeep_pid_set = self.indeep_pid_set
+                                store_set = self.indeep_pid_set.copy()
+                                self.dealSet(store_set.pop())
                                 # deepth
                                 indeepQuery.deepthQuery(self,self.indeep_pid_set)
+
+                        else:
+                            for n in range(10):
+                                companypid = judgeData_json['data']['list'][n]["pid"]
+                                print("\033[1;32m【+】\033[0m" + "控股公司PID为:{}".format(companypid))
+                                self.indeep_pid_set.add(companypid)
+                                store_set = self.indeep_pid_set.copy()
+                                self.dealSet(store_set.pop())
+                                # deepth
+                                indeepQuery.deepthQuery(self, self.indeep_pid_set)
+
         except AttributeError as e:
             print(e)
-
-    def outDeepthResult(self):
-        for n in self.all_indeep_pid_set:
-            print(n)
-
 
 
 if __name__ == "__main__":
     companyPid_set = set()
-    companyPid_set = {"34299801957255","74011265591181","77794752681209","79701630769171","29942430025317"}
+    companyPid_set = {"1234567890"}
     test = indeepQuery()
     test.deepthQuery(companyPid_set)
-    test.outDeepthResult()
+    pid_list = test.outDeal_Pid()

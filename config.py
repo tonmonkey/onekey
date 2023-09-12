@@ -12,7 +12,7 @@ banner = """
 | |              | | |              | | |              | | |              | |
 | '--------------' | '--------------' | '--------------' | '--------------' |
  '----------------' '----------------' '----------------' '----------------' 
-Version 2.0.1                                             ----Author:tommoney
+Version 0.2.3                                            ----Author:tommonkey
 """
 
 # setting proxy
@@ -23,13 +23,14 @@ proxies = {
 
 
 # setting company PID
-pid = 69125721431912
+# Normal mode query.查询单个目标，耗时少，速度快
+pid = 1234567890
+# In-deepth mode query.可查询单个或多个目标，耗时长，速度慢，发包量巨大，但覆盖面广，结果数量多
+InPid = {"1234567890",}
 
 
 # setting Cookie
 cookies = {'Cookie':''}
-
-
 # setting head
 header={
 'Sec-Ch-Ua':'"Google Chrome";v="107", "Chromium";v="107", "Not=A?Brand";v="24"',

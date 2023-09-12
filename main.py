@@ -4,6 +4,8 @@ import requests
 from config import *
 import json
 from output import *
+import argparse
+from deepth import *
 
 
 # To get the total subcompany number
@@ -13,6 +15,7 @@ def getPage(pid):
         requests.packages.urllib3.disable_warnings()
         rawDate = requests.get(url=url,headers=header,cookies=cookies,timeout=3,verify=False,proxies=proxies)
         rawDate_json = json.loads(rawDate.text)
+        # print(rawDate.text)
         # get the value of page
         number = rawDate_json['data']['total']
         if rawDate.status_code == 200 and number is not None:
@@ -22,7 +25,6 @@ def getPage(pid):
             print("\033[5;31;44m【+】\033[0m"+"获取控股公司数量失败!请检查网络")
     except Exception as err:
         print("\033[5;31;44m【+】\033[0m"+"运行异常:",err,"报错模块:getPage()")
-
 
 
 # Crow all subcompany
@@ -88,10 +90,43 @@ def get_investcompany(companyName_set,companyPid_set,pid):
     print("\033[0;34m【+】\033[0m" + "投资公司爬取完成!")
     return companyName_set, companyPid_set
 
+# Pid to company
+def pid_to_Company(pid_list):
+    company_list = []
+    for p in pid_list:
+        url = "https://aiqicha.baidu.com/relations/doubtControllerAjax?pid={}".format(p)
+        rowData = requests.get(url=url, headers=header, cookies=cookies, timeout=5, verify=False, proxies=proxies)
+        rawData_json = json.loads(rowData.text)
+        companyName = rawData_json['data']['compName']
+        print(companyName)
+        company_list.append(companyName)
+    return company_list
+
+
+# Add args
+def args_deal():
+    parse = argparse.ArgumentParser(prog="QACQ", description='''\033[5;31;44m1.python3 main.py -h2.python3 main.py -m a\033[0m''')
+    parse.add_argument("-m", "--module",action="store", help="Mode choose:1.-m a    2.-m d")
+    opt = parse.parse_args()
+    return opt
+
 
 if __name__ == "__main__":
     print(banner)
-    number = getPage(pid)
-    companyName_set, companyPid_set = get_subcompany(number,pid)
-    companyName_set, companyPid_set = get_investcompany(companyName_set,companyPid_set,pid)
-    dealDate(companyName_set, companyPid_set)
+    args = args_deal()
+    if args.module=="a":
+        number = getPage(pid)
+        companyName_set, companyPid_set = get_subcompany(number,pid)
+        companyName_set, companyPid_set = get_investcompany(companyName_set,companyPid_set,pid)
+        dealDate(companyName_set, companyPid_set)
+    elif args.module=="d":
+        pid_list = []
+        companyPid_set = set()
+        companyPid_set = InPid
+        Indeepth_Obj = indeepQuery()
+        Indeepth_Obj.deepthQuery(companyPid_set)
+        pid_list = Indeepth_Obj.outDeal_Pid()
+        company_list = pid_to_Company(pid_list)
+        dealDate(company_list, pid_list)
+    else:
+        print("\033[5;31;44m【+】\033[0m"+"运行异常:请输入正常参数")

@@ -22,7 +22,7 @@
 
 ## Show
 Get PID:
-![image](https://github.com/tonmonkey/onekey/assets/84943423/7001977e-b888-4a51-aa42-c026dc2a2c0e)
+![image](https://github.com/tonmonkey/onekey/assets/84943423/338ca3a9-62df-4e63-8b76-bc933be479ad)
 Setting:
 根据需要选择配置代理，pid,inpid,cookie
 ![image](https://github.com/tonmonkey/onekey/assets/84943423/02a8823f-fbe4-44e1-96a1-3631b865c61f)

@@ -13,7 +13,7 @@ OneKey
 | |              | | |              | | |              | | |              | |
 | '--------------' | '--------------' | '--------------' | '--------------' |
  '----------------' '----------------' '----------------' '----------------' 
-Version 0.2.2                                          ----Author:tommonkey
+Version 0.2.4                                          ----Author:tommonkey
 """
 
 # setting proxy
@@ -25,13 +25,14 @@ proxies = {
 
 # setting company PID
 # Normal mode query.查询单个目标，耗时少，速度快
-pid = 000000000
+pid = 0000000000
 # In-deepth mode query.可查询单个或多个目标，耗时长，速度慢，发包量巨大，但覆盖面广，结果数量多
-InPid = {"000000000",}
+InPid = ["0000000000",]
 
 
 # setting Cookie
 cookies = {'Cookie':''}
+
 # setting head
 header={
 'Sec-Ch-Ua':'"Google Chrome";v="107", "Chromium";v="107", "Not=A?Brand";v="24"',

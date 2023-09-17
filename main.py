@@ -6,6 +6,7 @@ import json
 from output import *
 import argparse
 from deepth import *
+from antiAntiCrawler import *
 
 
 # To get the total subcompany number
@@ -29,33 +30,51 @@ def getPage(pid):
 
 # Crow all subcompany
 def get_subcompany(number,pid):
-    companyName_set = set()
-    companyPid_set = set()
+    failPage = []
+    companyName_list = []
+    companyPid_list = []
     page = int(number/10+1)
     limit = int(number%10)
     for p in range(1,page+1):
-        print("\033[1;32m【+】\033[0m"+"正在获取第{}页控股公司".format(p))
-        url = "https://aiqicha.baidu.com/detail/holdsAjax?pid={}&p={}&size=10&confirm=".format(pid,p)
-        rawDate = requests.get(url=url,headers=header,cookies=cookies,timeout=5,verify=False,proxies=proxies)
-        rawDate_json = json.loads(rawDate.text)
-        # Use re module to get the subcompany name
-        if p == page:
-            for n in range(limit):
-                subcompanyName = rawDate_json['data']['list'][n]["entName"]
-                subcompanypid = rawDate_json['data']['list'][n]["pid"]
-                print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(subcompanyName, subcompanypid))
-                companyName_set.add(subcompanyName)
-                companyPid_set.add(subcompanypid)
-        else:
-            for n in range(10):
-                subcompanyName = rawDate_json['data']['list'][n]["entName"]
-                subcompanypid = rawDate_json['data']['list'][n]["pid"]
-                print("\033[1;32m【+】\033[0m"+"公司名称:{}    公司PID:{}".format(subcompanyName,subcompanypid))
-                companyName_set.add(subcompanyName)
-                companyPid_set.add(subcompanypid)
+        try:
+            print("\033[1;32m【+】\033[0m"+"正在获取第{}页控股公司".format(p))
+            t = randomTime()
+            print("\033[1;32m【+】\033[0m"+"休眠因素:{}".format(t))
+            time.sleep(t)
+            url = "https://aiqicha.baidu.com/detail/holdsAjax?pid={}&p={}&size=10&confirm=".format(pid,p)
+            rawDate = requests.get(url=url,headers=header,cookies=cookies,timeout=5,verify=False,proxies=proxies)
+            rawDate_json = json.loads(rawDate.text)
+            # Use re module to get the subcompany name
+            print("\033[0;34m【+】\033[0m"+"当前进度:{:.2f}%".format((p/page)*100))
+            if p == page:
+                for n in range(limit):
+                    subcompanyName = rawDate_json['data']['list'][n]["entName"]
+                    subcompanypid = rawDate_json['data']['list'][n]["pid"]
+                    print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(subcompanyName, subcompanypid))
+                    companyName_list.append(subcompanyName)
+                    companyPid_list.append(subcompanypid)
+            else:
+                for n in range(10):
+                    subcompanyName = rawDate_json['data']['list'][n]["entName"]
+                    subcompanypid = rawDate_json['data']['list'][n]["pid"]
+                    print("\033[1;32m【+】\033[0m"+"公司名称:{}    公司PID:{}".format(subcompanyName,subcompanypid))
+                    companyName_list.append(subcompanyName)
+                    companyPid_list.append(subcompanypid)
+        except TypeError as e:
+            print("\033[5;31;44m【+】\033[0m"+"数据获取失败:失败页数:{}".format(p))
+            with open(r'error_log.txt','a+',encoding="utf-8") as errorlog:
+                errorlog.write("\033[5;31;44m【+】\033[0m"+"数据获取失败:失败页数:{}\n{}".format(p,rawDate_json))
+            failPage.append(p)
+            continue
+        except IndexError as e:
+            print("\033[5;31;44m【+】\033[0m" + "数据获取失败:失败页数:{}".format(p))
+            with open(r'error_log.txt', 'a+', encoding="utf-8") as errorlog:
+                errorlog.write("\033[5;31;44m【+】\033[0m" + "数据获取失败:失败页数:{}\n{}".format(p, rawDate_json))
+            failPage.append(p)
+            continue
         print("\033[0;34m【+】\033[0m"+"第{}页控股公司获取成功".format(p))
     print("\033[0;34m【+】\033[0m" + "控股公司爬取完成!")
-    return companyName_set,companyPid_set
+    return companyName_list,companyPid_list
 
 
 # Crow all invest company
@@ -67,33 +86,48 @@ def get_investcompany(companyName_set,companyPid_set,pid):
     getPage = int(getTotal/10+1)
     limit = int(getTotal%10)
     for p in range(1,getPage+1):
-        print("\033[1;32m【+】\033[0m" + "正在获取第{}页投资公司".format(p))
-        url = "https://aiqicha.baidu.com/detail/investajax?p={}&size=10&pid={}".format(p,pid)
-        rawDate = requests.get(url=url, headers=header, cookies=cookies, timeout=5, verify=False, proxies=proxies)
-        rawDate_json = json.loads(rawDate.text)
-        # Use re module to get the invest company name
-        if p == getPage:
-            for n in range(limit):
-                investcompanyName = rawDate_json['data']['list'][n]["entName"]
-                investcompanypid = rawDate_json['data']['list'][n]["pid"]
-                print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(investcompanyName, investcompanypid))
-                companyName_set.add(investcompanyName)
-                companyPid_set.add(investcompanypid)
-        else:
-            for n in range(10):
-                investcompanyName = rawDate_json['data']['list'][n]["entName"]
-                investcompanypid = rawDate_json['data']['list'][n]["pid"]
-                print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(investcompanyName, investcompanypid))
-                companyName_set.add(investcompanyName)
-                companyPid_set.add(investcompanypid)
-        print("\033[0;34m【+】\033[0m" + "第{}页投资公司获取成功".format(p))
+        try:
+            print("\033[1;32m【+】\033[0m" + "正在获取第{}页投资公司".format(p))
+            time.sleep(randomTime())
+            url = "https://aiqicha.baidu.com/detail/investajax?p={}&size=10&pid={}".format(p,pid)
+            rawDate = requests.get(url=url, headers=header, cookies=cookies, timeout=5, verify=False, proxies=proxies)
+            rawDate_json = json.loads(rawDate.text)
+            # Use re module to get the invest company name
+            if p == getPage:
+                for n in range(limit):
+                    investcompanyName = rawDate_json['data']['list'][n]["entName"]
+                    investcompanypid = rawDate_json['data']['list'][n]["pid"]
+                    print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(investcompanyName, investcompanypid))
+                    companyName_list.append(investcompanyName)
+                    companyPid_list.append(investcompanypid)
+            else:
+                for n in range(10):
+                    investcompanyName = rawDate_json['data']['list'][n]["entName"]
+                    investcompanypid = rawDate_json['data']['list'][n]["pid"]
+                    print("\033[1;32m【+】\033[0m" + "公司名称:{}    公司PID:{}".format(investcompanyName, investcompanypid))
+                    companyName_list.append(investcompanyName)
+                    companyPid_list.append(investcompanypid)
+            print("\033[0;34m【+】\033[0m" + "第{}页投资公司获取成功".format(p))
+        except TypeError as e:
+            print("\033[5;31;44m【+】\033[0m"+"数据获取失败:失败页数:{}".format(p))
+            with open(r'error_log.txt','a+',encoding="utf-8") as errorlog:
+                errorlog.write("\033[5;31;44m【+】\033[0m"+"数据获取失败:失败页数:{}\n{}".format(p,rawDate_json))
+            # failPage.append(p)
+            continue
+        except IndexError as e:
+            print("\033[5;31;44m【+】\033[0m" + "数据获取失败:失败页数:{}".format(p))
+            with open(r'error_log.txt', 'a+', encoding="utf-8") as errorlog:
+                errorlog.write("\033[5;31;44m【+】\033[0m" + "数据获取失败:失败页数:{}\n{}".format(p, rawDate_json))
+            # failPage.append(p)
+            continue
     print("\033[0;34m【+】\033[0m" + "投资公司爬取完成!")
-    return companyName_set, companyPid_set
+    return companyName_list, companyPid_list
 
 # Pid to company
 def pid_to_Company(pid_list):
     company_list = []
     for p in pid_list:
+        time.sleep(randomTime())
         url = "https://aiqicha.baidu.com/relations/doubtControllerAjax?pid={}".format(p)
         rowData = requests.get(url=url, headers=header, cookies=cookies, timeout=5, verify=False, proxies=proxies)
         rawData_json = json.loads(rowData.text)
@@ -102,10 +136,9 @@ def pid_to_Company(pid_list):
         company_list.append(companyName)
     return company_list
 
-
 # Add args
 def args_deal():
-    parse = argparse.ArgumentParser(prog="QACQ", description='''\033[5;31;44m1.python3 main.py -h2.python3 main.py -m a\033[0m''')
+    parse = argparse.ArgumentParser(prog="OneKey-QACQ", description='''\033[5;31;44m1.python3 main.py -h2.python3 main.py -m a\033[0m''')
     parse.add_argument("-m", "--module",action="store", help="Mode choose:1.-m a    2.-m d")
     opt = parse.parse_args()
     return opt
@@ -116,15 +149,16 @@ if __name__ == "__main__":
     args = args_deal()
     if args.module=="a":
         number = getPage(pid)
-        companyName_set, companyPid_set = get_subcompany(number,pid)
-        companyName_set, companyPid_set = get_investcompany(companyName_set,companyPid_set,pid)
-        dealDate(companyName_set, companyPid_set)
+        companyName_list, companyPid_list = get_subcompany(number,pid)
+        companyName_list, companyPid_list = get_investcompany(companyName_list,companyPid_list,pid)
+        dealDate(companyName_list, companyPid_list)
     elif args.module=="d":
         pid_list = []
-        companyPid_set = set()
-        companyPid_set = InPid
+        companyPid_list = []
+        main_companyPid = InPid
+
         Indeepth_Obj = indeepQuery()
-        Indeepth_Obj.deepthQuery(companyPid_set)
+        Indeepth_Obj.deepthQuery(main_companyPid)
         pid_list = Indeepth_Obj.outDeal_Pid()
         company_list = pid_to_Company(pid_list)
         dealDate(company_list, pid_list)

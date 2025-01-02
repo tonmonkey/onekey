@@ -1,5 +1,4 @@
 # author: tommonkey
-
 import requests
 from config import *
 import json
